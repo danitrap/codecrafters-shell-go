@@ -20,8 +20,13 @@ func main() {
 
 		parts := strings.Split(strings.TrimSpace(input), " ")
 
-		if (parts[0]) == "exit" {
+		if parts[0] == "exit" {
 			os.Exit(0)
+		}
+
+		if parts[0] == "echo" {
+			fmt.Println(strings.Join(parts[1:], " "))
+			continue
 		}
 
 		fmt.Println(parts[0] + ": command not found")
