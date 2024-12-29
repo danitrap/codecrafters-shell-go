@@ -22,7 +22,28 @@ func main() {
 			return
 		}
 
-		parts := strings.Split(strings.TrimSpace(input), " ")
+		trimmedInput := strings.TrimSpace(input)
+
+		parts := make([]string, 0)
+		currentPart := ""
+		inQuote := false
+		for _, part := range strings.Split(trimmedInput, "") {
+			if part == " " && !inQuote {
+				if currentPart != "" {
+					parts = append(parts, currentPart)
+					currentPart = ""
+				}
+				continue
+			}
+
+			if part == "'" {
+				inQuote = !inQuote
+				continue
+			}
+
+			currentPart += part
+		}
+		parts = append(parts, currentPart)
 
 		builtin, err := builtins.GetBuiltin(parts[0])
 		if err == nil {
