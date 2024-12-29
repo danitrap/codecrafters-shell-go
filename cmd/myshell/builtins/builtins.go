@@ -46,6 +46,13 @@ func Pwd(args []string) {
 	fmt.Println(pwd)
 }
 
+func Cd(args []string) {
+	err := os.Chdir(args[1])
+	if err != nil {
+		fmt.Printf("cd: %s: No such file or directory\n", args[1])
+	}
+}
+
 func GetBuiltin(cmd string) (BuiltinCommand, error) {
 	builtin, ok := builtins[cmd]
 	if !ok {
@@ -71,6 +78,10 @@ func init() {
 		"pwd": {
 			Name:           "pwd",
 			Implementation: Pwd,
+		},
+		"cd": {
+			Name:           "cd",
+			Implementation: Cd,
 		},
 	}
 }
