@@ -7,6 +7,47 @@ import (
 	"strings"
 )
 
+type BuiltinCommand struct {
+	Name           string
+	Implementation func(args []string)
+}
+
+var builtins map[string]BuiltinCommand
+
+func Exit(args []string) {
+	os.Exit(0)
+}
+
+func Echo(args []string) {
+	fmt.Println(strings.Join(args[1:], " "))
+}
+
+func Type(args []string) {
+	cmd := args[1]
+	if _, ok := builtins[cmd]; ok {
+		fmt.Printf("%s is a shell builtin\n", cmd)
+		return
+	}
+	fmt.Printf("%s: not found\n", cmd)
+}
+
+func init() {
+	builtins = map[string]BuiltinCommand{
+		"exit": {
+			Name:           "exit",
+			Implementation: Exit,
+		},
+		"echo": {
+			Name:           "echo",
+			Implementation: Echo,
+		},
+		"type": {
+			Name:           "type",
+			Implementation: Type,
+		},
+	}
+}
+
 func main() {
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
@@ -20,13 +61,11 @@ func main() {
 
 		parts := strings.Split(strings.TrimSpace(input), " ")
 
-		switch parts[0] {
-		case "exit":
-			os.Exit(0)
-		case "echo":
-			fmt.Println(strings.Join(parts[1:], " "))
-		default:
-			fmt.Println(parts[0] + ": command not found")
+		if builtin, ok := builtins[parts[0]]; ok {
+			builtin.Implementation(parts)
+			continue
 		}
+
+		fmt.Println(parts[0] + ": command not found")
 	}
 }
