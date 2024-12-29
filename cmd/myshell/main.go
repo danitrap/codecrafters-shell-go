@@ -28,6 +28,14 @@ func Type(args []string) {
 		fmt.Printf("%s is a shell builtin\n", cmd)
 		return
 	}
+	path := os.Getenv("PATH")
+	paths := strings.Split(path, ":")
+	for _, p := range paths {
+		if _, err := os.Stat(p + "/" + cmd); err == nil {
+			fmt.Printf("%s is %s/%s\n", cmd, p, cmd)
+			return
+		}
+	}
 	fmt.Printf("%s: not found\n", cmd)
 }
 
