@@ -20,6 +20,10 @@ func main() {
 
 		parts := strings.Split(strings.TrimSpace(input), " ")
 
+		if (parts[0]) == "exit" {
+			os.Exit(0)
+		}
+
 		fmt.Println(parts[0] + ": command not found")
 	}
 }
