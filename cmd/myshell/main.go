@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -24,19 +25,33 @@ func Echo(args []string) {
 
 func Type(args []string) {
 	cmd := args[1]
-	if _, ok := builtins[cmd]; ok {
+	if IsBuiltin(cmd) {
 		fmt.Printf("%s is a shell builtin\n", cmd)
 		return
 	}
+	if p, err := GetExecutable(cmd); err == nil {
+		fmt.Printf("%s is %s/%s\n", cmd, p, cmd)
+		return
+	}
+	fmt.Printf("%s: not found\n", cmd)
+}
+
+func IsBuiltin(cmd string) bool {
+	_, ok := builtins[cmd]
+	return ok
+}
+
+func GetExecutable(cmd string) (string, error) {
 	path := os.Getenv("PATH")
 	paths := strings.Split(path, ":")
 	for _, p := range paths {
-		if _, err := os.Stat(p + "/" + cmd); err == nil {
-			fmt.Printf("%s is %s/%s\n", cmd, p, cmd)
-			return
+		if file, err := os.Stat(p + "/" + cmd); err == nil {
+			if file.Mode().IsRegular() && file.Mode()&0111 != 0 {
+				return p, nil
+			}
 		}
 	}
-	fmt.Printf("%s: not found\n", cmd)
+	return "", fmt.Errorf("%s: not found", cmd)
 }
 
 func init() {
@@ -71,6 +86,17 @@ func main() {
 
 		if builtin, ok := builtins[parts[0]]; ok {
 			builtin.Implementation(parts)
+			continue
+		}
+
+		if p, err := GetExecutable(parts[0]); err == nil {
+			output, err := exec.Command(p+"/"+parts[0], parts[1:]...).Output()
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+
+			fmt.Fprint(os.Stdout, string(output))
 			continue
 		}
 
