@@ -47,6 +47,8 @@ func Pwd(args []string) {
 }
 
 func Cd(args []string) {
+	args[1] = strings.Replace(args[1], "~", os.Getenv("HOME"), 1)
+
 	err := os.Chdir(args[1])
 	if err != nil {
 		fmt.Printf("cd: %s: No such file or directory\n", args[1])
