@@ -36,6 +36,15 @@ func Type(args []string) {
 	fmt.Printf("%s: not found\n", cmd)
 }
 
+func Pwd(args []string) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(pwd)
+}
+
 func IsBuiltin(cmd string) bool {
 	_, ok := builtins[cmd]
 	return ok
@@ -67,6 +76,10 @@ func init() {
 		"type": {
 			Name:           "type",
 			Implementation: Type,
+		},
+		"pwd": {
+			Name:           "pwd",
+			Implementation: Pwd,
 		},
 	}
 }
